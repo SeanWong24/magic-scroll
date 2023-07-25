@@ -1,7 +1,11 @@
 :host {
+  --page-index: 0;
+  --page-scroll-ratio: calc(var(--scroll-ratio) - var(--page-index));
+
   display: block;
-  position: relative;
-  height: 100%;
-  width: 100%;
-  background: azure;
+  position: absolute;
+  height: fit-content;
+  width: fit-content;
+  top: calc(var(--canvas-height) * var(--page-index));
+  background: blue;
 }

@@ -1,7 +1,13 @@
 :host {
+  --canvas-height: 0;
+  --canvas-width: 0;
+  --scroll-ratio: 0;
+
   display: block;
   position: relative;
   height: 100%;
   width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: azure;
 }
