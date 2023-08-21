@@ -1,11 +1,18 @@
 :host {
-  --page-index: 0;
-  --page-scroll-ratio: calc(var(--scroll-ratio) - var(--page-index));
+  --ms-page-index: 0;
+  --ms-page-scroll-ratio: calc(var(--ms-scroll-ratio) - var(--ms-page-index));
 
   display: block;
   position: absolute;
   height: fit-content;
+  width: 100%;
+  max-height: var(--ms-canvas-height);
+  top: calc(var(--ms-canvas-height) * var(--ms-page-index));
+}
+
+slot {
+  display: block;
+  position: relative;
+  height: fit-content;
   width: fit-content;
-  top: calc(var(--canvas-height) * var(--page-index));
-  background: blue;
 }

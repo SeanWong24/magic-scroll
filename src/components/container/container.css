@@ -1,7 +1,7 @@
 :host {
-  --canvas-height: 0;
-  --canvas-width: 0;
-  --scroll-ratio: 0;
+  --ms-canvas-height: 0;
+  --ms-canvas-width: 0;
+  --ms-scroll-ratio: 0;
 
   display: block;
   position: relative;

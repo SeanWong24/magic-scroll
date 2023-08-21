@@ -8,29 +8,51 @@
   <title>Magic Scroll</title>
   <link rel="stylesheet" href="./src/index.css" />
   <script type="module" src="./src/index.ts"></script>
+  <style>
+    :root {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+  </style>
 </head>
 
 <body>
   <ms-container>
-    <ms-item
-      transform="translate(calc(var(--canvas-width) * max( var(--page-scroll-ratio), 0) * 0.75), calc(var(--canvas-height) * max( var(--page-scroll-ratio), 0) * 0.75))"><img
-        src="https://picsum.photos/id/0/500" /></ms-item>
+    <ms-item style-fn="translate: 0 calc(var(--ms-canvas-height) * 0.5 - 50%)">
+      <span style="font-size: 3rem;">Magic Scroll</span>
+      <p>Just scroll it down...</p>
+    </ms-item>
     <ms-item page-index="1"
-      transform="translate(calc(var(--canvas-width) * max( var(--page-scroll-ratio), 0) * 0.75), calc(var(--canvas-height) * max( var(--page-scroll-ratio), 0) * 0.75))"><img
+      style-fn="translate: calc(var(--ms-canvas-width) * max( var(--ms-page-scroll-ratio), 0) * 0.75) calc(var(--ms-canvas-height) * max( var(--ms-page-scroll-ratio), 0) * 0.75)"><img
         src="https://picsum.photos/id/1/500" /></ms-item>
-    <ms-item page-index="2"
-      transform="translate(calc(var(--canvas-width) * max( var(--page-scroll-ratio), 0) * 0.75), calc(var(--canvas-height) * max( var(--page-scroll-ratio), 0) * 0.75))"><img
-        src="https://picsum.photos/id/2/500" /></ms-item>
-    <ms-item page-index="3"
-      transform="translate(calc(var(--canvas-width) * max( var(--page-scroll-ratio), 0) * 0.75), calc(var(--canvas-height) * max( var(--page-scroll-ratio), 0) * 0.75))"><img
-        src="https://picsum.photos/id/3/500" /></ms-item>
-    <ms-item page-index="4"
-      transform="translate(calc(var(--canvas-width) * max( var(--page-scroll-ratio), 0) * 0.75), calc(var(--canvas-height) * max( var(--page-scroll-ratio), 0) * 0.75))"><img
-        src="https://picsum.photos/id/4/500" /></ms-item>
-    <ms-item page-index="5"
-      transform="translate(calc(var(--canvas-width) * max( var(--page-scroll-ratio), 0) * 0.75), calc(var(--canvas-height) * max( var(--page-scroll-ratio), 0) * 0.75))"><img
-        src="https://picsum.photos/id/5/500" /></ms-item>
+    <ms-item page-index="2"><img src="https://picsum.photos/id/2/500" /></ms-item>
+    <ms-item page-index="3"><img src="https://picsum.photos/id/3/500" /></ms-item>
+    <ms-item page-index="4"><img src="https://picsum.photos/id/4/500" /></ms-item>
+    <ms-item page-index="5"><img src="https://picsum.photos/id/5/500" /></ms-item>
+    <ms-item page-index="5" style-fn="translate: 100% calc(max(0, var(--ms-page-scroll-ratio) + 1) * -50%)"><img
+        src="https://picsum.photos/id/51/500" /></ms-item>
+    <ms-item page-index="6" fill-page-height><img src="https://picsum.photos/id/6/500" /></ms-item>
+    <ms-item page-index="6" fill-page-height>
+      <h1>Woo~~</h1>
+    </ms-item>
   </ms-container>
+  <script defer>
+    let el = document.querySelector('ms-item[page-index="2"]')
+    if (el) {
+      el.styleFn = ({ pageScrollRatio, canvasHeight, canvasWidth }) => ({ translate: `${pageScrollRatio * canvasWidth}px calc(${canvasHeight * (0.5 + pageScrollRatio)}px - 50%)` })
+    }
+    el = document.querySelector('ms-item[page-index="3"]')
+    if (el) {
+      el.styleFn = ({ pageScrollRatio, canvasHeight, canvasWidth }) => ({ translate: `${(1 - pageScrollRatio) * canvasWidth}px calc(${canvasHeight * (0.5 + pageScrollRatio)}px - 50%)` })
+    }
+    el = document.querySelector('ms-item[page-index="4"]')
+    if (el) {
+      el.styleFn = ({ pageScrollRatio, canvasHeight, canvasWidth }) => ({ translate: `${(1 - pageScrollRatio) * canvasWidth}px calc(${canvasHeight * (0.5 + pageScrollRatio)}px - 50%)` })
+    }
+    el = document.querySelector('ms-item[page-index="6"]')
+    if (el) {
+      el.styleFn = ({ pageScrollRatio }) => ({ opacity: 1 - Math.max(0, pageScrollRatio + 1), transformOrigin: 'left', scale: 1 + Math.max(0, pageScrollRatio + 1) })
+    }
+  </script>
 </body>
 
 </html>

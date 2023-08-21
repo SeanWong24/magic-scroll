@@ -2,11 +2,22 @@ import { LitElement, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import elementCSS from "./item.css?inline";
 
-type CSSStringOrFunction = string | ((scroll: number) => string);
+type StyleFunction = (args: {
+  pageScrollRatio: number;
+  scrollRatio: number;
+  pageIndex: number;
+  canvasHeight: number;
+  canvasWidth: number;
+}) => Record<string, string>;
+type CSSStringOrStyleFunction = string | StyleFunction;
 
 @customElement(`ms-item`)
 export class MagicScrollItem extends LitElement {
-  static styles = [unsafeCSS(elementCSS)];
+  readonly #staticStyleSheets = [unsafeCSS(elementCSS).styleSheet].filter(
+    Boolean
+  ) as CSSStyleSheet[];
+
+  readonly #dynamicStyleSheet = new CSSStyleSheet();
 
   #pageIndex = 0;
   get pageIndex() {
@@ -16,36 +27,97 @@ export class MagicScrollItem extends LitElement {
     value: number
   ) {
     this.#pageIndex = value;
-    this.style.setProperty("--page-index", value.toString());
+    this.style.setProperty("--ms-page-index", value.toString());
   }
 
-  #transform: CSSStringOrFunction = "";
-  get transform() {
-    return this.#transform;
+  #styleFn: CSSStringOrStyleFunction = "";
+  get styleFn() {
+    return this.#styleFn;
   }
-  @property() set transform(value: CSSStringOrFunction) {
-    this.#transform = value;
-    this.#updateTransform();
-  }
-
-  get #actualTransform() {
-    const transform = this.transform;
-    switch (typeof transform) {
-      case "string":
-        return transform;
-      case "function":
-        return transform(+getComputedStyle(this).getPropertyValue("--scroll"));
-      default:
-        return "";
+  @property({ attribute: "style-fn" }) set styleFn(
+    value: CSSStringOrStyleFunction
+  ) {
+    if (typeof value === "string" && value === this.#styleFn) {
+      return;
     }
+    this.#styleFn = value;
+    this.updateStyle();
+  }
+
+  #fillPageHeight = false;
+  get fillPageHeight() {
+    return this.#fillPageHeight;
+  }
+  @property({ attribute: "fill-page-height", type: Boolean })
+  set fillPageHeight(value: boolean) {
+    this.#fillPageHeight = value;
+    this.style.height = value ? "var(--ms-canvas-height)" : "fit-content";
+  }
+
+  /**
+   * @internal
+   */
+  updateStyle() {
+    if (!this.shadowRoot) {
+      return;
+    }
+    let styleCSSString = "";
+    switch (typeof this.styleFn) {
+      case "string":
+        styleCSSString = this.styleFn;
+        break;
+      case "function":
+        const scrollRatio =
+          +getComputedStyle(this).getPropertyValue("--ms-scroll-ratio");
+        const pageScrollRatio = scrollRatio - this.#pageIndex;
+        const canvasHeight = this.parentElement?.clientHeight ?? Number.NaN;
+        const canvasWidth = this.parentElement?.clientWidth ?? Number.NaN;
+        styleCSSString = Object.entries(
+          (this.styleFn as StyleFunction)({
+            get pageIndex(): number {
+              return this.pageIndex;
+            },
+            get pageScrollRatio() {
+              return pageScrollRatio;
+            },
+            get scrollRatio() {
+              return scrollRatio;
+            },
+            get canvasHeight() {
+              return canvasHeight;
+            },
+            get canvasWidth() {
+              return canvasWidth;
+            },
+          }) ?? {}
+        )
+          .map(([key, value]) => `${this.#camelToKebab(key)}: ${value};`)
+          .join("\n");
+        break;
+    }
+    this.#dynamicStyleSheet.replaceSync(/* css */ `
+      slot {
+        ${styleCSSString}
+      }
+    `);
+  }
+
+  firstUpdated() {
+    if (this.shadowRoot) {
+      this.shadowRoot.adoptedStyleSheets = [
+        ...this.#staticStyleSheets,
+        this.#dynamicStyleSheet,
+      ];
+    }
+    this.updateStyle();
   }
 
   render() {
     return html` <slot></slot> `;
   }
 
-  #updateTransform() {
-    this.style.transform = this.#actualTransform;
+  #camelToKebab(text: string) {
+    return text.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
   }
 }
 
