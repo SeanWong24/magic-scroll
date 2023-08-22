@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "build:gh_pages": "npm run build -- --config vite.config.gh_pages.ts",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "npm run build"
   },
   "dependencies": {
     "lit": "^2.7.6",
