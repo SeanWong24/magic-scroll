@@ -72,10 +72,11 @@ export class MagicScrollItem extends LitElement {
         const pageScrollRatio = scrollRatio - this.#pageIndex;
         const canvasHeight = this.parentElement?.clientHeight ?? Number.NaN;
         const canvasWidth = this.parentElement?.clientWidth ?? Number.NaN;
+        const itemObject = this;
         styleCSSString = Object.entries(
           (this.styleFn as StyleFunction)({
             get pageIndex(): number {
-              return this.pageIndex;
+              return itemObject.pageIndex;
             },
             get pageScrollRatio() {
               return pageScrollRatio;
